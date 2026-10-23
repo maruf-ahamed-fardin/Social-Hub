@@ -1,0 +1,621 @@
+<meta charset="utf-8">
+<title>Social Hub</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: sidebar + page on desktop; bottom tab bar + full-width page on phones. Every page = header (title, one-line help, one main action) + content. */
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --surface-2:#ECEFF4; --line:#D9DEE6;
+  --fg:#121722; --muted:#566072; --accent:#2B54D6; --accent-ink:#FFFFFF; --accent-soft:#E3EAFC;
+  --ok:#1C7C45; --ok-soft:#E0F2E7; --warn:#946010; --warn-soft:#FBEED6; --bad:#B4371F; --bad-soft:#FBE4DE;
+  --ai:#0C7C70; --ai-soft:#DCF1EE;
+  --fb:#1877F2; --ig:#D62976; --li:#0A66C2; --tt:#121722; --tt-ink:#FFFFFF; --yt:#DD1F1F;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Figtree","Hind Siliguri","Segoe UI",system-ui,sans-serif;
+  --f-bn:"Hind Siliguri","Noto Sans Bengali","Figtree",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0D1016; --surface:#151A23; --surface-2:#1C2330; --line:#2A3342;
+  --fg:#E6EBF2; --muted:#97A3B6; --accent:#7D9BFF; --accent-ink:#0D1016; --accent-soft:#1D2849;
+  --ok:#4CC38A; --ok-soft:#14301F; --warn:#E3B04B; --warn-soft:#33270F; --bad:#F2785C; --bad-soft:#3A1C15;
+  --ai:#45C9B7; --ai-soft:#11302C; --tt:#E6EBF2; --tt-ink:#0D1016; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0D1016; --surface:#151A23; --surface-2:#1C2330; --line:#2A3342;
+  --fg:#E6EBF2; --muted:#97A3B6; --accent:#7D9BFF; --accent-ink:#0D1016; --accent-soft:#1D2849;
+  --ok:#4CC38A; --ok-soft:#14301F; --warn:#E3B04B; --warn-soft:#33270F; --bad:#F2785C; --bad-soft:#3A1C15;
+  --ai:#45C9B7; --ai-soft:#11302C; --tt:#E6EBF2; --tt-ink:#0D1016; color-scheme:dark }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--f-body)}
+html[lang="bn"] body{font-family:var(--f-bn)}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font:700 27px/1.2 var(--f-display);letter-spacing:-.01em}
+h2{font:600 17px/1.3 var(--f-body)}
+p{margin:0}
+.bn{font-family:var(--f-bn)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.92em}
+.muted{color:var(--muted)}
+.small{font-size:13.5px}
+.label{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.ico{width:20px;height:20px;flex:none}
+
+/* ---------- shell ---------- */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);gap:24px;max-width:1440px;margin:0 auto;
+  padding-block:16px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.side{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:start;max-height:calc(100vh - 32px);overflow:auto;display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font:700 19px var(--f-display);padding:4px 6px}
+.brand-mark{width:32px;height:32px;border-radius:9px;background:var(--accent);display:grid;place-items:center;flex:none}
+.ws{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);text-align:left;width:100%}
+.ws-av{width:32px;height:32px;border-radius:8px;background:var(--ai-soft);color:var(--ai);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.create-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:46px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .grp{margin:10px 0 4px 12px}
+.navbtn{display:flex;align-items:center;gap:12px;border:0;background:none;min-height:42px;padding:8px 12px;border-radius:10px;text-align:left;color:var(--muted);font-weight:500;width:100%}
+.navbtn:hover{background:var(--surface-2);color:var(--fg)}
+.navbtn[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.badge{margin-left:auto;font:600 11.5px var(--f-mono);background:var(--bad);color:#fff;min-width:20px;height:20px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center}
+.help-card{margin-top:auto;padding:14px;border-radius:var(--r);background:var(--surface-2);display:flex;flex-direction:column;gap:8px}
+
+.main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.top .mobile-brand{display:none}
+.search{flex:1;min-width:0;max-width:380px;display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 14px;min-height:42px}
+.search input{border:0;background:none;outline:none;min-width:0;width:100%}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:0 14px;min-height:40px;font-weight:600;font-size:13.5px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);display:inline-block;flex:none}
+.iconbtn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.lang button{border:0;background:none;padding:0 12px;min-height:40px;font-weight:600;font-size:13.5px;color:var(--muted)}
+.lang button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.mock-note{font-size:13.5px;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r);padding:9px 14px}
+.nojs{font-size:14.5px;background:var(--warn-soft);color:var(--fg);border-radius:var(--r);padding:12px 16px}
+
+.tabbar{display:none}
+.sheet-back{position:fixed;inset:0;background:rgba(10,14,20,.45);z-index:30}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--surface);border-radius:18px 18px 0 0;
+  padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:4px;max-height:80vh;overflow:auto}
+.sheet .grab{width:44px;height:5px;border-radius:99px;background:var(--line);align-self:center;margin-bottom:8px}
+
+/* ---------- page pieces ---------- */
+.view{display:flex;flex-direction:column;gap:18px}
+.ph{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.ph > div:first-child{flex:1;min-width:240px;display:flex;flex-direction:column;gap:4px}
+.ph .sub{color:var(--muted);max-width:62ch}
+.ph-act{display:flex;gap:8px;flex-wrap:wrap}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.g-7-5{grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.panel-h h2{margin-right:auto}
+.stat{display:flex;flex-direction:column;gap:2px}
+.stat b{font:700 26px/1.2 var(--f-display);font-variant-numeric:tabular-nums}
+.up{color:var(--ok);font-weight:600;font-size:13px}
+
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)} .chip.ai{background:var(--ai-soft);color:var(--ai)} .chip.info{background:var(--accent-soft);color:var(--accent)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+button.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);min-height:36px;padding:0 14px}
+button.chip:hover{border-color:var(--accent)}
+.pf{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:7px;color:#fff;font:700 10px var(--f-mono);flex:none;text-transform:lowercase}
+.pf-fb,.pf-ms{background:var(--fb)} .pf-ig{background:var(--ig)} .pf-li{background:var(--li)} .pf-yt{background:var(--yt)} .pf-tt{background:var(--tt);color:var(--tt-ink)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:10px;min-height:42px;padding:0 16px;font-weight:600;font-size:14.5px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.07)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.sm{min-height:36px;padding:0 12px;font-size:13.5px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.list{display:flex;flex-direction:column}
+.item{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0;padding-top:0}
+.item:last-child{padding-bottom:0}
+.item .grow{flex:1;min-width:0}
+.meter{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent);border-radius:inherit}
+.meter.ai i{background:var(--ai)} .meter.ok i{background:var(--ok)} .meter.warn i{background:var(--warn)}
+
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:none;min-height:40px;padding:0 14px;font-size:14px;font-weight:600;color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+textarea,.field{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px;resize:vertical;min-height:44px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);border-radius:10px;min-height:40px;padding:0 12px;font-weight:600;font-size:14px}
+.tab[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+.tab .n{font:600 12px var(--f-mono);color:var(--muted)}
+
+/* home */
+.setup{background:linear-gradient(135deg,var(--accent-soft),var(--ai-soft));border:0}
+.steps{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.st{background:var(--surface);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.st .ck{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--line);font:700 12px var(--f-mono);color:var(--muted)}
+.st.done .ck{background:var(--ok);border-color:var(--ok);color:#fff}
+.st.done span{color:var(--muted)}
+.need{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-top:1px solid var(--line)}
+.need:first-child{border-top:0;padding-top:0}
+.need .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.need .t{font-weight:600}
+
+/* create */
+.stepper{display:flex;gap:8px;flex-wrap:wrap}
+.stepbtn{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:8px 14px 8px 8px;min-height:46px;font-weight:600;color:var(--muted)}
+.stepbtn .n{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font:700 13px var(--f-mono)}
+.stepbtn[aria-current="step"]{border-color:var(--accent);color:var(--fg)}
+.stepbtn[aria-current="step"] .n{background:var(--accent);color:var(--accent-ink)}
+.stepbtn.done .n{background:var(--ok);color:#fff}
+.postcard{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;max-width:520px;width:100%}
+.postcard .pc-h{display:flex;align-items:center;gap:10px;padding:12px 14px}
+.postcard .pc-t{padding:0 14px 12px;white-space:pre-wrap;line-height:1.6}
+.postcard .pc-img{background:linear-gradient(150deg,#2B54D6 0%,#0C7C70 100%);display:grid;place-items:end start;color:#fff;font-size:12.5px;padding:10px;max-width:100%}
+.postcard .pc-f{display:flex;gap:18px;padding:10px 14px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px}
+.checks{display:flex;flex-direction:column;gap:10px}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:14.5px}
+.check svg{flex:none;margin-top:2px}
+.choice{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer;background:var(--surface)}
+.choice:has(input:checked){border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.choice input{margin-top:4px;accent-color:var(--accent);width:18px;height:18px;flex:none}
+.choice .grow{display:flex;flex-direction:column;gap:2px;min-width:0}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cal-day{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;min-height:120px}
+.cal-day.today{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.cal-post{border-radius:9px;background:var(--surface-2);padding:8px;display:flex;flex-direction:column;gap:4px;font-size:13.5px;border-left:4px solid var(--line);text-align:left;border-top:0;border-right:0;border-bottom:0}
+.cal-post.s-pub{border-left-color:var(--ok)} .cal-post.s-sch{border-left-color:var(--accent)}
+.cal-post.s-apr{border-left-color:var(--warn)} .cal-post.s-fail{border-left-color:var(--bad)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+/* inbox */
+.inbox{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;align-items:start}
+.thread{display:flex;gap:12px;padding:12px;border-radius:12px;border:1px solid transparent;background:none;text-align:left;width:100%}
+.thread:hover{background:var(--surface-2)}
+.thread[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.thread .grow{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.thread .msg{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:14px}
+.bubble{background:var(--surface-2);border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:15.5px}
+.aibox{background:var(--ai-soft);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.aibox .head{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--ai)}
+
+/* orders */
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.col{background:var(--surface-2);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.lead{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+
+/* results */
+.insight{display:flex;flex-direction:column;gap:6px}
+.insight b{font-size:16.5px;line-height:1.35}
+.chart svg{width:100%;height:auto;display:block}
+.heat{display:grid;grid-template-columns:44px repeat(6,minmax(0,1fr));gap:4px;font-size:12.5px}
+.heat .c{aspect-ratio:1.6;border-radius:6px;max-width:100%}
+.heat .h{color:var(--muted);text-align:center}
+.heat .d{color:var(--muted);align-self:center}
+table{width:100%;border-collapse:collapse;font-size:14.5px}
+th{text-align:left;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;padding:0 10px 8px 0}
+td{padding:11px 10px 11px 0;border-top:1px solid var(--line);vertical-align:middle}
+.tbl{overflow-x:auto}
+
+/* videos */
+.drop{border:2px dashed var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:var(--surface)}
+.clip{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.clip:first-child{border-top:0;padding-top:0}
+.thumb{aspect-ratio:9/16;width:58px;max-width:100%;border-radius:9px;background:linear-gradient(160deg,var(--accent),var(--ai));display:grid;place-items:center;color:#fff;font:500 11px var(--f-mono)}
+.score{font:700 20px var(--f-display);color:var(--ok)}
+
+/* auto-reply */
+.pausecard{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.pausecard .big{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--ok-soft);flex:none}
+.pausecard.off .big{background:var(--bad-soft)}
+.rule{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:16px 0;border-top:1px solid var(--line)}
+.rule:first-child{border-top:0;padding-top:0}
+.rule .ex{font-size:13.5px;color:var(--muted)}
+.rule .now{font-size:14px;background:var(--surface-2);border-radius:10px;padding:8px 12px}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+
+/* accounts */
+.acct{display:flex;flex-direction:column;gap:12px}
+.acct-h{display:flex;align-items:center;gap:12px}
+.acct-h .pf{width:40px;height:40px;border-radius:11px;font-size:13px}
+.caps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:14px}
+.cap{display:flex;align-items:center;gap:7px}
+
+/* help */
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.fstep{background:var(--surface-2);border-radius:12px;padding:10px 12px;font-size:14px;display:flex;flex-direction:column;gap:2px;max-width:210px}
+.fstep.who-ai{background:var(--ai-soft)} .fstep.who-you{background:var(--warn-soft)} .fstep.who-sys{background:var(--accent-soft)}
+.arrow{align-self:center;color:var(--muted)}
+details{border-top:1px solid var(--line);padding:12px 0}
+details:first-of-type{border-top:0;padding-top:0}
+summary{cursor:pointer;font-weight:600}
+details p{margin-top:8px;color:var(--muted)}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:10px 10px 10px 18px;border-radius:12px;font-weight:600;font-size:14.5px;z-index:40;display:flex;align-items:center;gap:14px;max-width:calc(100% - 32px)}
+.toast button{border:0;background:none;color:var(--bg);text-decoration:underline;font-weight:700;min-height:36px;padding:0 8px}
+
+@media (max-width:1180px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:980px){.g3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr;padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+  .side{display:none}
+  .top .mobile-brand{display:flex}
+  .search{order:5;max-width:none;flex-basis:100%}
+  .g2,.g-7-5,.inbox{grid-template-columns:1fr}
+  .tabbar{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);
+    padding:6px max(6px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px))}
+  .tabbar button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--muted);min-height:54px;justify-content:center;position:relative}
+  .tabbar button[aria-current="page"]{color:var(--accent)}
+  .tabbar .plus{width:46px;height:46px;border-radius:14px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+  .tabbar .badge{position:absolute;top:4px;left:calc(50% + 6px);margin:0}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+}
+@media (max-width:560px){.g4,.g3,.caps{grid-template-columns:1fr}.steps{grid-template-columns:1fr}h1{font-size:23px}.clip{grid-template-columns:auto minmax(0,1fr)}.clip .btn{grid-column:1 / -1}.pill .txt{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <!-- ===== SIDEBAR (desktop) ===== -->
+  <aside class="side" aria-label="Main menu">
+    <div class="brand"><span class="brand-mark" data-icon="logo"></span>Social Hub</div>
+    <button class="ws" data-go="plan"><span class="ws-av">NT</span><span><b>Nakshi Threads</b><br><span class="small muted">Pixel Bazaar Agency</span></span></button>
+    <button class="btn primary create-btn" data-go="create"><span data-icon="plus"></span><span data-i18n="btn.create">Create post</span></button>
+    <nav class="nav" id="sideNav"></nav>
+    <div class="help-card">
+      <b data-i18n="help.card.t">New here?</b>
+      <span class="small muted" data-i18n="help.card.d">See how Social Hub works in 4 short steps.</span>
+      <button class="btn sm" data-go="help" data-i18n="help.card.b">Show me how</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- ===== TOP BAR ===== -->
+    <header class="top">
+      <span class="brand mobile-brand"><span class="brand-mark" data-icon="logo"></span></span>
+      <label class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="Search posts, people, orders" aria-label="Search"></label>
+      <div class="top-right">
+        <div class="lang" role="group" aria-label="Interface language"><button data-lang="bn" aria-pressed="false">বাংলা</button><button data-lang="en" aria-pressed="true">EN</button></div>
+        <button class="pill" id="autoPill" data-go="auto"><span class="dot"></span><span class="txt" data-i18n="top.auto_on">Auto-reply on</span></button>
+        <span class="avatar" title="Fardin (Owner)">FA</span>
+      </div>
+    </header>
+    <p class="mock-note">Mockup of the finished app, with sample data for a made-up Dhaka clothing brand. Every menu and button works, but nothing is really sent. Try the বাংলা switch at the top.</p>
+    <p class="nojs" id="nojs"><b>Menus and buttons are switched off in this viewer.</b> It isn't running the page's scripts. Open <span class="num">docs/mockup/index.html</span> in Chrome or Edge, or use the online link.</p>
+
+    <!-- ===== HOME ===== -->
+    <section class="view" id="v-home">
+      <div class="ph"><div><h1 data-i18n="home.greet">Good evening, Fardin</h1><p class="sub" data-i18n="sub.home">Here is what needs you today, and how your pages are doing.</p></div>
+        <div class="ph-act"><button class="btn primary" data-go="create"><span data-icon="plus"></span><span data-i18n="btn.create">Create post</span></button></div></div>
+
+      <div class="panel setup" id="setupCard">
+        <div class="panel-h"><h2 data-i18n="home.setup">Finish setting up</h2><span class="small"><b>3 of 5</b> done</span><button class="btn sm" data-hide="setupCard">Hide</button></div>
+        <div class="meter ok"><i style="width:60%"></i></div>
+        <div class="steps">
+          <div class="st done"><span class="ck">✓</span><span>Connect your pages</span></div>
+          <div class="st done"><span class="ck">✓</span><span>Tell us about your brand</span></div>
+          <div class="st done"><span class="ck">✓</span><span>Add your products and prices</span></div>
+          <div class="st"><span class="ck">4</span><b>Create your first AI post</b><button class="btn sm primary" data-go="create">Start</button></div>
+          <div class="st"><span class="ck">5</span><b>Choose what the AI can answer alone</b><button class="btn sm" data-go="auto">Set up</button></div>
+        </div>
+      </div>
+
+      <div class="grid g-7-5">
+        <div class="panel">
+          <div class="panel-h"><h2 data-i18n="home.needs">Needs you</h2><span class="chip bad">3</span></div>
+          <div>
+            <div class="need"><span class="pf pf-fb">f</span><div class="grow"><span class="t">Nusrat is upset about a late delivery</span><span class="small muted">The AI wrote a careful reply. Complaints always wait for you.</span><div class="row"><button class="btn sm primary" data-go-thread="1">Check the reply</button></div></div></div>
+            <div class="need"><span class="pf pf-ms">m</span><div class="grow"><span class="t">Farhana wants 3 panjabis (about ৳7,000)</span><span class="small muted">Big orders come to you first. Reply window closes in 17 hours.</span><div class="row"><button class="btn sm primary" data-go-thread="2">Open the chat</button></div></div></div>
+            <div class="need"><span class="pf pf-li">in</span><div class="grow"><span class="t">A LinkedIn post is ready for Tuesday 10 AM</span><span class="small muted">"120 weavers in Jamalpur" · written by the AI from your notes</span><div class="row"><button class="btn sm primary" data-toast="Approved. It will go out Tuesday at 10 AM.">Approve</button><button class="btn sm" data-go="calendar">See it</button></div></div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2 data-i18n="home.plan">Next week is planned</h2><span class="chip ai">AI</span></div>
+          <p>12 posts, 3 reels and 2 YouTube Shorts for <b>Oct 31 – Nov 6</b>. Focus: the last days of the Eid offer, then a winter shawl teaser.</p>
+          <div class="list small">
+            <div class="item"><span class="num muted">Sat</span><div class="grow">Last-call carousel, offer ends tonight</div><span class="pf pf-fb">f</span><span class="pf pf-ig">ig</span></div>
+            <div class="item"><span class="num muted">Mon</span><div class="grow">Weaver interview reel</div><span class="pf pf-tt">tt</span><span class="pf pf-yt">yt</span></div>
+            <div class="item"><span class="num muted">Wed</span><div class="grow">Winter shawl teaser with a poll</div><span class="pf pf-fb">f</span><span class="pf pf-li">in</span></div>
+          </div>
+          <div class="row"><button class="btn primary" data-toast="Week approved. 17 posts are scheduled.">Approve the whole week</button><button class="btn" data-go="calendar">Look first</button></div>
+        </div>
+      </div>
+
+      <h2 data-i18n="home.week">This week</h2>
+      <div class="grid g4">
+        <div class="panel stat"><b>1,82,400</b><span>people saw your posts</span><span class="up">12% more than last week</span></div>
+        <div class="panel stat"><b>64</b><span>people asked to buy</span><span class="up">21 more than last week</span></div>
+        <div class="panel stat"><b>৳1,84,500</b><span>in 38 orders</span><span class="up">81% cash on delivery</span></div>
+        <div class="panel stat"><b>47</b><span>replies sent for you today</span><span class="small muted">about 2 hours saved</span></div>
+      </div>
+
+      <div class="grid g3">
+        <div class="panel">
+          <div class="panel-h"><h2 data-i18n="home.today">Going out today</h2></div>
+          <div class="list small">
+            <div class="item"><span class="num muted">11:00 AM</span><span class="pf pf-fb">f</span><div class="grow">Eid panjabi carousel</div><span class="chip ok">Posted</span></div>
+            <div class="item"><span class="num muted">5:30 PM</span><span class="pf pf-ig">ig</span><div class="grow">Reel: stitching close-up</div><span class="chip info">Waiting</span></div>
+            <div class="item"><span class="num muted">8:30 PM</span><span class="pf pf-yt">yt</span><div class="grow">Short: how to tie the knot</div><span class="chip info">Waiting</span></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2 data-i18n="home.ai">What the AI did today</h2></div>
+          <div class="list small">
+            <div class="item"><div class="grow">Answered price and delivery questions</div><b class="num">47</b></div>
+            <div class="item"><div class="grow">Hid spam and scam comments</div><b class="num">19</b></div>
+            <div class="item"><div class="grow">Stopped comments trying to trick it</div><b class="num">2</b></div>
+            <div class="item"><div class="grow">Asked you before replying</div><b class="num">3</b></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-h"><h2 data-i18n="home.mood">Comment mood</h2><span class="chip ok">All calm</span></div>
+          <p class="small">Comments are as positive as usual. If many people suddenly complain, we pause your scheduled posts and tell you right away.</p>
+          <div class="meter ok"><i style="width:88%"></i></div>
+          <span class="small muted">88% of comments are positive or neutral</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CREATE ===== -->
+    <section class="view" id="v-create" hidden>
+      <div class="ph"><div><h1 data-i18n="title.create">Create a post</h1><p class="sub" data-i18n="sub.create">Write one idea. We'll make a version for every platform.</p></div></div>
+      <div class="stepper" id="stepper">
+        <button class="stepbtn" data-step="1"><span class="n">1</span>Your idea</button>
+        <button class="stepbtn" data-step="2"><span class="n">2</span>Check the posts</button>
+        <button class="stepbtn" data-step="3"><span class="n">3</span>When to post</button>
+      </div>
+
+      <div class="panel" data-pane="1">
+        <label class="label" for="idea">What do you want to post about?</label>
+        <textarea id="idea" rows="4">Eid collection launch: hand-stitched nakshi panjabis, 20% off until Oct 31. I want people to comment "order".</textarea>
+        <div class="small muted">Not sure? Start from one of these:</div>
+        <div class="chips" id="ideaChips"></div>
+        <div class="grid g2">
+          <div class="row"><span class="label" style="min-width:70px">Goal</span><div class="seg"><button aria-pressed="true">Get orders</button><button aria-pressed="false">Get noticed</button><button aria-pressed="false">Talk with fans</button></div></div>
+          <div class="row"><span class="label" style="min-width:70px">Language</span><div class="seg" id="langSeg"><button data-l="bn" aria-pressed="true">বাংলা</button><button data-l="en" aria-pressed="false">English</button></div></div>
+        </div>
+        <div class="row small muted"><span data-icon="spark"></span>The AI also uses your brand info: your voice, the Nakshi Panjabi price (৳2,450) and your 20% offer.</div>
+        <div class="row"><button class="btn primary" data-step-go="2">Write my posts <span data-icon="arrow"></span></button></div>
+      </div>
+
+      <div class="grid g-7-5" data-pane="2" hidden>
+        <div class="panel">
+          <div class="tabs" id="pfTabs" role="tablist"></div>
+          <div class="postcard" id="postcard"></div>
+          <div class="row"><button class="btn" data-toast="You can now edit the text.">Edit text</button><button class="btn" data-toast="Writing a new version…">Try another version</button></div>
+        </div>
+        <div class="panel">
+          <h2>We checked it for you</h2>
+          <div class="checks" id="checks"></div>
+          <div class="aibox"><div class="head"><span data-icon="spark"></span>Expected result</div><span>Likely to do better than <b>80%</b> of your posts. Posts that start with a question get 38% more comments for you.</span></div>
+          <div class="row spread"><button class="btn" data-step-go="1">Back</button><button class="btn primary" data-step-go="3">Choose when <span data-icon="arrow"></span></button></div>
+        </div>
+      </div>
+
+      <div class="grid g2" data-pane="3" hidden>
+        <div class="panel">
+          <h2>Where to post</h2>
+          <div class="checks" id="whereList"></div>
+        </div>
+        <div class="panel">
+          <h2>When</h2>
+          <label class="choice"><input type="radio" name="when" id="whenBest" checked><span class="grow"><b>Best time: Friday 8:30 PM</b><span class="small muted">Recommended. Most of your followers are online then.</span></span></label>
+          <label class="choice"><input type="radio" name="when" id="whenNow"><span class="grow"><b>Post now</b><span class="small muted">Goes out in about a minute.</span></span></label>
+          <label class="choice"><input type="radio" name="when" id="whenPick"><span class="grow"><b>Pick a time</b><input class="field" type="datetime-local" id="whenAt" value="2026-10-30T20:30" aria-label="Date and time"></span></label>
+          <label class="choice"><input type="checkbox" id="needApprove"><span class="grow"><b>Ask Sajid to approve first</b><span class="small muted">He gets a notification and can approve with one tap.</span></span></label>
+          <div class="row spread"><button class="btn" data-step-go="2">Back</button><button class="btn primary" id="scheduleBtn">Schedule posts</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CALENDAR ===== -->
+    <section class="view" id="v-calendar" hidden>
+      <div class="ph"><div><h1 data-i18n="title.calendar">Calendar</h1><p class="sub" data-i18n="sub.calendar">Everything that's scheduled, in one place. Tap a post to see it.</p></div>
+        <div class="ph-act"><button class="btn primary" data-go="create"><span data-icon="plus"></span><span data-i18n="btn.create">Create post</span></button></div></div>
+      <div class="row spread"><b>Sat Oct 24 – Fri Oct 30</b>
+        <div class="legend"><span><i class="sw" style="background:var(--ok)"></i>Posted</span><span><i class="sw" style="background:var(--accent)"></i>Waiting</span><span><i class="sw" style="background:var(--warn)"></i>Needs approval</span><span><i class="sw" style="background:var(--bad)"></i>Problem</span></div></div>
+      <div class="cal" id="cal"></div>
+    </section>
+
+    <!-- ===== INBOX ===== -->
+    <section class="view" id="v-inbox" hidden>
+      <div class="ph"><div><h1 data-i18n="title.inbox">Inbox</h1><p class="sub" data-i18n="sub.inbox">Comments and messages from all your pages. The AI answers the easy ones and asks you about the rest.</p></div></div>
+      <div class="tabs" id="inboxTabs" role="tablist"></div>
+      <div class="inbox">
+        <div class="panel" style="padding:8px"><div class="list" id="threads"></div></div>
+        <div class="panel" id="threadDetail"></div>
+      </div>
+    </section>
+
+    <!-- ===== ORDERS ===== -->
+    <section class="view" id="v-orders" hidden>
+      <div class="ph"><div><h1 data-i18n="title.orders">Orders</h1><p class="sub" data-i18n="sub.orders">People who want to buy, from their first comment to delivery.</p></div>
+        <div class="ph-act"><button class="btn" data-toast="Exported 38 orders to a spreadsheet.">Export</button></div></div>
+      <div class="grid g4">
+        <div class="panel stat"><b>23</b><span>people waiting for an answer or order</span></div>
+        <div class="panel stat"><b>18%</b><span>of buying comments become orders</span><span class="up">up 3 points</span></div>
+        <div class="panel stat"><b>৳4,855</b><span>average order</span></div>
+        <div class="panel stat"><b>92%</b><span>confirmed by a phone call</span></div>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+
+    <!-- ===== RESULTS ===== -->
+    <section class="view" id="v-results" hidden>
+      <div class="ph"><div><h1 data-i18n="title.results">Results</h1><p class="sub" data-i18n="sub.results">What's working, in plain words. The AI uses these lessons in your next posts.</p></div>
+        <div class="ph-act"><div class="seg"><button aria-pressed="false">7 days</button><button aria-pressed="true">8 weeks</button><button aria-pressed="false">Year</button></div></div></div>
+      <div class="grid g4">
+        <div class="panel insight"><span class="label">Best time</span><b>Friday at 8 PM</b><span class="small muted">Your posts get the most likes and comments then.</span></div>
+        <div class="panel insight"><span class="label">Language</span><b>Bangla reaches 2× more on Facebook</b><span class="small muted">English works better on LinkedIn.</span></div>
+        <div class="panel insight"><span class="label">Opening line</span><b>Start with a question</b><span class="small muted">38% more comments than a statement.</span></div>
+        <div class="panel insight"><span class="label">Videos</span><b>Close-ups of hand-stitching win</b><span class="small muted">People watch 64% longer than model shots.</span></div>
+      </div>
+      <div class="panel chart"><div class="panel-h"><h2>People reached each week</h2><span class="small muted">in thousands</span></div><div id="reachChart"></div></div>
+      <div class="grid g2">
+        <div class="panel"><div class="panel-h"><h2>When your followers are active</h2><span class="small muted">darker = more active · Bangladesh time</span></div><div class="heat" id="heat"></div></div>
+        <div class="panel"><h2>Your best posts</h2><div class="tbl"><table><thead><tr><th>Post</th><th>Where</th><th>Reached</th><th>Orders</th></tr></thead><tbody>
+          <tr><td>Eid panjabi carousel</td><td><span class="pf pf-fb">f</span></td><td class="num">41,200</td><td class="num">22</td></tr>
+          <tr><td>Stitching close-up reel</td><td><span class="pf pf-ig">ig</span></td><td class="num">36,800</td><td class="num">11</td></tr>
+          <tr><td>Weaver's hands, 15 s</td><td><span class="pf pf-tt">tt</span></td><td class="num">29,500</td><td class="num">4</td></tr>
+          <tr><td>How a panjabi is made</td><td><span class="pf pf-yt">yt</span></td><td class="num">12,900</td><td class="num">3</td></tr>
+        </tbody></table></div></div>
+      </div>
+    </section>
+
+    <!-- ===== VIDEOS ===== -->
+    <section class="view" id="v-videos" hidden>
+      <div class="ph"><div><h1 data-i18n="title.videos">Videos</h1><p class="sub" data-i18n="sub.videos">Turn one long video into short clips for Reels, Shorts and TikTok, with Bangla subtitles.</p></div></div>
+      <div class="grid g-7-5">
+        <div class="panel">
+          <label class="drop" for="videoFile"><span data-icon="upload"></span><b>Drop a long video here, or tap to choose</b><span class="small muted">Up to 2 hours · MP4 or MOV</span><input id="videoFile" type="file" accept="video/*" hidden></label>
+          <div class="panel-h"><h2>Best moments we found</h2><span class="chip ai">from "Eid photoshoot, behind the scenes" · 14:32</span></div>
+          <div id="clips"></div>
+        </div>
+        <div class="panel">
+          <h2>Make it look like your brand</h2>
+          <div class="list small">
+            <div class="item"><div class="grow"><b>Product spotlight</b><div class="muted">Price tag, logo at the end, subtitles</div></div><button class="btn sm" data-toast="Template selected.">Use</button></div>
+            <div class="item"><div class="grow"><b>Artisan story</b><div class="muted">Slow captions, warm colors</div></div><button class="btn sm" data-toast="Template selected.">Use</button></div>
+            <div class="item"><div class="grow"><b>Offer countdown</b><div class="muted">Timer and "comment order" at the end</div></div><button class="btn sm" data-toast="Template selected.">Use</button></div>
+          </div>
+          <h2>Make a new picture</h2>
+          <textarea id="genPrompt" rows="3" aria-label="Describe the picture">Three nakshi panjabis on jute fabric, soft morning light</textarea>
+          <div class="row"><button class="btn primary" data-toast="Making your picture. Uses 4 credits.">Make picture</button><button class="btn" data-toast="Making a 6-second video. Uses 30 credits.">Make 6 s video</button></div>
+          <div><div class="row small"><span>Video minutes left this month</span><b class="num" style="margin-left:auto">82 of 120</b></div><div class="meter warn" style="margin-top:6px"><i style="width:68%"></i></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BRAND ===== -->
+    <section class="view" id="v-brand" hidden>
+      <div class="ph"><div><h1 data-i18n="title.brand">My brand</h1><p class="sub" data-i18n="sub.brand">What the AI knows about your business. Better info means better posts and replies.</p></div></div>
+      <div class="grid g2">
+        <div class="panel"><div class="panel-h"><h2>How the AI should sound</h2><button class="btn sm">Edit</button></div>
+          <p>Warm and proud of handmade craft. Like a friendly shop owner in Dhaka, never pushy. Bangla first on Facebook and Instagram, English on LinkedIn.</p>
+          <div class="list small" id="voice"></div></div>
+        <div class="panel"><div class="panel-h"><h2>Rules</h2><button class="btn sm">Edit</button></div>
+          <div><span class="label">Never say</span><div class="chips" style="margin-top:6px"><span class="chip bad">cheapest</span><span class="chip bad">guaranteed</span><span class="chip bad">other shops' names</span></div></div>
+          <div><span class="label">Links the AI may share</span><div class="chips" style="margin-top:6px"><span class="chip ok">nakshithreads.com.bd</span><span class="chip ok">m.me/nakshithreads</span></div></div>
+          <div><span class="label">Always ask me when someone mentions</span><div class="chips" style="margin-top:6px"><span class="chip warn">refund</span><span class="chip warn">damaged item</span><span class="chip warn">legal action</span><span class="chip warn">order over ৳5,000</span></div></div></div>
+      </div>
+      <div class="grid g2">
+        <div class="panel"><div class="panel-h"><h2>Products and prices</h2><button class="btn sm">Add product</button></div>
+          <div class="tbl"><table><thead><tr><th>Product</th><th>Price</th><th>Stock</th></tr></thead><tbody>
+            <tr><td>Nakshi Panjabi, indigo</td><td class="num">৳2,450</td><td><span class="chip ok">42 left</span></td></tr>
+            <tr><td>Nakshi Panjabi, maroon</td><td class="num">৳2,650</td><td><span class="chip warn">6 left</span></td></tr>
+            <tr><td>Jamdani shawl</td><td class="num">৳5,800</td><td><span class="chip ok">18 left</span></td></tr>
+            <tr><td>Kids' panjabi set</td><td class="num">৳1,450</td><td><span class="chip bad">Sold out</span></td></tr>
+          </tbody></table></div>
+          <span class="small muted">The AI can only quote prices from this list, so it never gives a wrong price.</span></div>
+        <div class="panel"><div class="panel-h"><h2>Answers to common questions</h2><button class="btn sm">Add answer</button></div>
+          <div class="list small">
+            <div class="item"><div class="grow"><b>Delivery</b><div class="muted">Inside Dhaka 2 days (৳80), outside 3–5 days (৳150). Cash on delivery everywhere.</div></div></div>
+            <div class="item"><div class="grow"><b>Sizes</b><div class="muted">S to XXL. We send the size chart by message.</div></div></div>
+            <div class="item"><div class="grow"><b>Exchange</b><div class="muted">Within 7 days if unworn with tags.</div></div></div>
+          </div></div>
+      </div>
+    </section>
+
+    <!-- ===== AUTO-REPLY ===== -->
+    <section class="view" id="v-auto" hidden>
+      <div class="ph"><div><h1 data-i18n="title.auto">Auto-reply</h1><p class="sub" data-i18n="sub.auto">Choose what the AI can do on its own, and when it should ask you first.</p></div></div>
+      <div class="panel pausecard" id="pauseCard">
+        <span class="big" data-icon="bolt"></span>
+        <div style="flex:1;min-width:200px"><h2 id="pauseTitle">Auto-reply is on</h2><p class="small muted" id="pauseText">The AI is answering comments and messages using the choices below.</p></div>
+        <button class="btn danger" id="pauseBtn">Pause everything</button>
+      </div>
+      <div class="grid g-7-5">
+        <div class="panel"><h2>For each situation</h2><div id="rules"></div></div>
+        <div class="grid" style="align-content:start">
+          <div class="panel"><h2>Safety limits</h2>
+            <div class="list small">
+              <div class="item"><div class="grow">Most automatic replies in one hour</div><b class="num">60</b></div>
+              <div class="item"><div class="grow">Most posts per page in one day</div><b class="num">6</b></div>
+              <div class="item"><div class="grow">"Sure" means at least</div><b class="num">90%</b></div>
+              <div class="item"><div class="grow">Pause posting if complaints reach</div><b class="num">15%</b></div>
+            </div></div>
+          <div class="panel"><h2>Checked before anything is sent</h2>
+            <div class="checks small" id="safety"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ACCOUNTS ===== -->
+    <section class="view" id="v-accounts" hidden>
+      <div class="ph"><div><h1 data-i18n="title.accounts">Connected accounts</h1><p class="sub" data-i18n="sub.accounts">Your pages, and what Social Hub can do with each one.</p></div>
+        <div class="ph-act"><button class="btn primary" data-toast="Choose a platform to connect."><span data-icon="plus"></span>Connect a page</button></div></div>
+      <div class="grid g3" id="accounts"></div>
+    </section>
+
+    <!-- ===== PLAN & TEAM ===== -->
+    <section class="view" id="v-plan" hidden>
+      <div class="ph"><div><h1 data-i18n="title.plan">Plan & team</h1><p class="sub" data-i18n="sub.plan">Your plan, what you've used, and who can do what.</p></div></div>
+      <div class="grid g2">
+        <div class="panel"><div class="panel-h"><h2>Growth plan</h2><b>৳2,499 / month</b></div>
+          <div class="list small" id="usage"></div>
+          <div class="row"><button class="btn primary" data-toast="Opening payment: bKash, Nagad or card.">Upgrade</button><span class="small muted">Pay with bKash, Nagad or card · renews Nov 1</span></div></div>
+        <div class="panel"><div class="panel-h"><h2>Team</h2><button class="btn sm" data-toast="Invite sent.">Invite someone</button></div>
+          <div class="list small">
+            <div class="item"><span class="avatar">FA</span><div class="grow"><b>Fardin A.</b><div class="muted">Owner · can do everything</div></div></div>
+            <div class="item"><span class="avatar" style="background:var(--ai)">MR</span><div class="grow"><b>Mitu R.</b><div class="muted">Editor · writes and schedules posts</div></div></div>
+            <div class="item"><span class="avatar" style="background:var(--warn)">SK</span><div class="grow"><b>Sajid K.</b><div class="muted">Approver · approves posts and replies</div></div></div>
+            <div class="item"><span class="avatar" style="background:var(--muted)">NT</span><div class="grow"><b>Nakshi Threads (client)</b><div class="muted">Viewer · can only look</div></div><span class="chip warn">No 2-step login</span></div>
+          </div></div>
+      </div>
+      <div class="panel"><div class="panel-h"><h2>Your clients</h2><span class="chip">Pixel Bazaar Agency</span></div>
+        <div class="grid g3 small">
+          <div class="row"><span class="ws-av">NT</span><div><b>Nakshi Threads</b><div class="muted">5 pages · 2 posts waiting for client</div></div></div>
+          <div class="row"><span class="ws-av">DB</span><div><b>Dhaka Bean Roasters</b><div class="muted">3 pages · weekly report sent</div></div></div>
+          <div class="row"><span class="ws-av">KB</span><div><b>Kolpona Books</b><div class="muted">2 pages · trial ends in 5 days</div></div></div>
+        </div></div>
+    </section>
+
+    <!-- ===== HELP ===== -->
+    <section class="view" id="v-help" hidden>
+      <div class="ph"><div><h1 data-i18n="title.help">Help</h1><p class="sub" data-i18n="sub.help">How Social Hub works, and answers to common questions.</p></div></div>
+      <div class="legend"><span><i class="sw" style="background:var(--warn-soft);box-shadow:inset 0 0 0 1px var(--warn)"></i>You</span><span><i class="sw" style="background:var(--ai-soft);box-shadow:inset 0 0 0 1px var(--ai)"></i>AI</span><span><i class="sw" style="background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)"></i>Social Hub</span></div>
+      <div class="panel"><h2>1. From an idea to a post</h2><div class="flow" id="flow1"></div></div>
+      <div class="panel"><h2>2. From a comment to an order</h2><div class="flow" id="flow2"></div></div>
+      <div class="panel"><h2>3. From one long video to many clips</h2><div class="flow" id="flow3"></div></div>
+      <div class="panel"><h2>4. Getting better every week</h2><div class="flow" id="flow4"></div></div>
+      <div class="grid g2">
+        <div class="panel"><h2>Common questions</h2>
+          <details><summary>Will the AI ever post something without me?</summary><p>Only what you allow on the Auto-reply page. New posts wait for your approval unless you change that. You can pause everything with one button.</p></details>
+          <details><summary>What if the AI gives a wrong price?</summary><p>It can't. Replies that mention a price are blocked unless the price matches your product list.</p></details>
+          <details><summary>Is my Facebook password stored?</summary><p>No. You log in on Facebook's own page. We keep an encrypted access key that you can remove any time.</p></details>
+          <details><summary>Why can't I reply to TikTok comments here?</summary><p>TikTok doesn't let other apps reply to comments yet. Posting and results work.</p></details>
+        </div>
+        <div class="panel"><h2>Still stuck?</h2><p>Write to us in Bangla or English. We answer within a few hours, 10 AM to 10 PM.</p><p><b>Email:</b> <span class="num">help@socialhub.example</span></p><p><b>Phone:</b> <span class="num">09612-000000</span></p></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ===== BOTTOM TAB BAR (phones) ===== -->
+<nav class="tabbar" aria-label="Main menu" id="tabbar">
+  <button data-view="home"><span data-icon="home"></span><span data-i18n="nav.home">Home</span></button>
+  <button data-view="inbox"><span data-icon="inbox"></span><span data-i18n="nav.inbox">Inbox</span><span class="badge">3</span></button>
+  <button data-view="create" aria-label="Create post"><span class="plus" data-icon="plus"></span></button>
+  <button data-view="calendar"><span data-icon="calendar"></span><span data-i18n="nav.calendar">Calendar</span></button>
+  <button id="moreBtn"><span data-icon="more"></span><span data-i18n="nav.more">More</span></button>
+</nav>
+<div class="sheet-back" id="sheetBack" hidden></div>
+<div class="sheet" id="sheet" hidden role="dialog" aria-label="All pages"><span class="grab"></span><div class="nav" id="sheetNav"></div></div>
+<div class="toast" id="toast" role="status" hidden><span id="toastMsg"></span><button id="toastUndo">Undo</button></div>
+
+<script src="app.js"></script>
